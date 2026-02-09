@@ -142,21 +142,30 @@ void get_single_particle_LJ_contributions(double sigma, double epsilon, double r
     static double rij;
     static xyz    rij_vec;
     
-    /* Write code to determine the contributions to the total system energy, forces, and stresses due to the selected atom.
-    Self interactions should not be included.
-
-    // Loop over all atoms. Within the loop:
+    // Loop over all atoms to compute energy and stress contributions
+    for (int i = 0; i < coords.size(); i++)
+    {
+        // Skip self-interaction 
+        if (i == selected_atom)
+            continue;
         
         // Get the scalar distance and distance vector between atoms, using MIC
-
-
-        // Determine pair energy, but only if interaction is within cutoff idstance
-    
-    
-        // Determine the atom pair's contribution to the total system pressure - again, only perform 
-        // if within the model cutoff - we'll use this if the move is accepted
-    
-    */
+        rij = get_dist(selected_atom_coords, coords[i], boxdim, rij_vec);
+        
+        // Determine pair energy, but only if interaction is within cutoff distance
+        if (rij <= rcut)
+        {
+            energy_selected += get_LJ_eij(sigma, epsilon, rcut, rij);
+            
+            // Get the force on the selected atom due to atom i
+            get_LJ_fij(sigma, epsilon, rcut, rij, rij_vec, force);
+            
+            // Determine the atom pair's contribution to the total system virial (stress tensor diagonal)
+            stress_selected.x += force.x * rij_vec.x;
+            stress_selected.y += force.y * rij_vec.y;
+            stress_selected.z += force.z * rij_vec.z;
+        }
+    }
 }
 
 
