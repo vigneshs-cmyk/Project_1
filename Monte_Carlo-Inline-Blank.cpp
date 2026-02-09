@@ -36,7 +36,21 @@ double get_dist(const xyz & a1, const xyz & a2, const xyz & boxdim, xyz & rij_ve
     The convention is that the vector should point from atom 1 to atom 2
     
     The function should return the scalar distance.
+
     */
+
+    rij_vec.x = a2.x - a1.x;
+    rij_vec.y = a2.y - a1.y;
+    rij_vec.z = a2.z - a1.z;
+
+    // Apply minimum image convention
+    rij_vec.x = nearbyint((rij_vec.x/boxdim.x)*boxdim.x);
+    rij_vec.y = nearbyint((rij_vec.y/boxdim.y)*boxdim.y);
+    rij_vec.z = nearbyint((rij_vec.z/boxdim.z)*boxdim.z);
+
+    double dist = sqrt(pow(rij_vec.x,2) + pow(rij_vec.y,2) + pow(rij_vec.z,2));
+    
+    return dist;
 }
 
 double update_max_displacement(double fraction_accepted, double boxdim, double max_displacement)
