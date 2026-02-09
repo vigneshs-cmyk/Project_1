@@ -105,6 +105,26 @@ void get_LJ_fij(double sigma, double epsilon, double rcut, double rij, const xyz
     The function should not return anything.
     */
 
+    if (rij > rcut || rij == 0)
+    {
+        fij.x = 0;
+        fij.y = 0;
+        fij.z = 0;
+        return;
+    }
+    
+    double sig_rij = sigma / rij;
+    double sig_pow6 = pow(sig_rij, 6);
+    double sig_pow12 = sig_pow6 * sig_pow6;
+    
+    // Radial force magnitude: F = 24*epsilon * (2*sr^12 - sr^6) / rij
+    double fscal = 24.0 * epsilon * (2.0 * sig_pow12 - sig_pow6) / rij;
+    
+    // Convert to vector form by scaling with the unit vector
+    fij.x = fscal * rij_vec.x / rij;
+    fij.y = fscal * rij_vec.y / rij;
+    fij.z = fscal * rij_vec.z / rij;
+
     return;
 }
 
