@@ -82,6 +82,19 @@ double get_LJ_eij(double sigma, double epsilon, double rcut, double rij)
     It should account for the user-specified cutoff distance.
     The function should return the computed energy.
     */
+    
+    if (rij > rcut) 
+    {
+        return 0.0;
+    }
+    
+    double sig_rij = sigma / rij;
+    double sig_pow6 = pow(sig_rij, 6);
+    double sig_pow12 = sig_pow6 * sig_pow6;
+    
+    double eij = 4.0 * epsilon * (sig_pow12 - sig_pow6);
+    
+    return eij;
 }
 
 void get_LJ_fij(double sigma, double epsilon, double rcut, double rij, const xyz & rij_vec, xyz & fij)
