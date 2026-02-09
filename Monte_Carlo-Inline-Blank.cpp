@@ -307,19 +307,26 @@ int main(int argc, char* argv[])
     {
         for (int j=i+1; j<natoms; j++)
         {
-            // Get the scalar distance and distance vector between atoms, using MIC
+             // Get the scalar distance and distance vector between atoms, using MIC
 
-            /*write this*/
+            rij = get_dist(coords[i], coords[j], boxdim, rij_vec);
                       
             // Determine atom pair's contirbution to total system energy - remember to only perform the 
             // calculation if the pair distance is within the model cutoff
             
-            /*write this*/
+            if (rij <= rcut)
+            {
+                energy += get_LJ_eij(sigma, epsilon, rcut, rij);
             
             // Determine the atom pair's contribution to the total system pressure - again, only perform 
             // if within the model cutoff
-                        
-            /*write this*/
+            
+                get_LJ_fij(sigma, epsilon, rcut, rij, rij_vec, force);
+                stensor.x += force.x * rij_vec.x;
+                stensor.y += force.y * rij_vec.y;
+                stensor.z += force.z * rij_vec.z;
+            }
+
 
         }
     }
