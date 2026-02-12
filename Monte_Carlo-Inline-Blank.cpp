@@ -387,15 +387,22 @@ int main(int argc, char* argv[])
         // 1. Generate the trial **displacement** in x, y, and z - the particle should be able to move in positive
         // and negative directions, i.e., +/- the maximum displacement
 
-        /*write this*/
+        trial_displacement.x = (2.0 * mtrand() - 1.0) * max_displacement;
+        trial_displacement.y = (2.0 * mtrand() - 1.0) * max_displacement;
+        trial_displacement.z = (2.0 * mtrand() - 1.0) * max_displacement;
         
         // 2. Generate the trial **position** in x, y, and z based on the displacement
         
-        /*write this*/
+        trial_position.x = coords[selected_atom].x + trial_displacement.x;
+        trial_position.y = coords[selected_atom].y + trial_displacement.y;
+        trial_position.z = coords[selected_atom].z + trial_displacement.z;
         
         // 3. Apply PBC if the particle has moved outside the box
+
+        trial_position.x -= floor(trial_position.x/boxdim.x)*boxdim.x;
+        trial_position.y -= floor(trial_position.y/boxdim.y)*boxdim.y;
+        trial_position.z -= floor(trial_position.z/boxdim.z)*boxdim.z;
         
-        /*write this*/        
         
         // 4. Determine the energy contribution of that particle with the system **in it's trial position**
     
@@ -436,14 +443,19 @@ int main(int argc, char* argv[])
         // particle is at it's trial position, E_old - eold_selected + enew_selected = E_new
         // Therefore delta E, which = E_new - E_old is just enew_selected - eold_selected
         
-        delta_energy = /*write this*/
+        delta_energy = enew_selected - eold_selected;
 
-        if ( mtrand() < /*write the acceptance criteria*/ ) // Then accept
+        if ( mtrand() < exp(-delta_energy / temp) ) // Then accept
         {
             // Then the system energy has decreased **or** our random number is less than our probability to accept
             // Update the system position, energy, and stress tensor, and number of accepted moves
             
-            /*write this*/
+            coords[selected_atom] = trial_position;
+            energy += delta_energy;
+            stensor.x = stensor.x - sold_selected.x + snew_selected.x;
+            stensor.y = stensor.y - sold_selected.y + snew_selected.y;
+            stensor.z = stensor.z - sold_selected.z + snew_selected.z;
+            naccepted_moves++;
              
         }
         
@@ -454,10 +466,12 @@ int main(int argc, char* argv[])
         max_displacement = update_max_displacement(fraction_accepted, boxdim.x, max_displacement);
        
        
-        // print statistics if ineeded - don't forget to convert the stress tensor to pressure 
-        // Compute instantaneous properties
-        
-        pressure = /*write this - this is the full pressure, i.e., kinetic + Virial*/;
+           // print statistics if ineeded - don't forget to convert the stress tensor to pressure 
+           // Compute instantaneous properties
+
+           // Kinetic (ideal) term uses number density `numden` (atoms/Ang^3): P_kin = n * T (units: K/Ang^3)
+           // Virial contribution: Tr(stensor)/(3V) where stensor components are in K (as explained earlier)
+        pressure = numden * temp + (stensor.x + stensor.y + stensor.z) / (3.0 * boxdim.x * boxdim.y * boxdim.z);
         Cv       = 0;
 
         if (i >= nequil) // Compute values for running averages, only using the equilibrated portion of the trajectory
