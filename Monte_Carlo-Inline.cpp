@@ -195,8 +195,8 @@ int main(int argc, char* argv[])
     
     double  temp    = 1.2*epsilon;  // Temperature, in K
     double  nsteps  = 5e6;          // Number of MC steps
-    int     iofrq   = 2e4;          // Frequency to output statistics and trajectory
-    int     nequil  = 2e6;          // Equilibration period (chemical potential and heat capacity only collected after this many steps)
+    int     iofrq   = 2e3;          // Frequency to output statistics and trajectory
+    int     nequil  = 1e6;          // Equilibration period (chemical potential and heat capacity only collected after this many steps)
     
     xyz         boxdim;             // Simulation box x, y, and z lengths - will be determined later on
     vector<xyz> coords;             // Coordinates for all atoms in our system; coords[0].x gives the x coordinate of the 0th atom - will be generated later on
