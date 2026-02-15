@@ -499,10 +499,10 @@ int main(int argc, char* argv[])
             cout << " fAcc:  " << setw(10) << left << fixed << setprecision(3) << fraction_accepted;
             cout << " Maxd:  " << setw(10) << left << fixed << setprecision(5) << max_displacement;
             cout << " E*/N:  " << setw(10) << left << fixed << setprecision(5) << energy/natoms/epsilon;
-            cout << " P*:     " << setw(10) << left << fixed << setprecision(5) << /*write this - this is the reduced pressure*/;
-            cout << " P*cold: " << setw(10) << left << fixed << setprecision(5) <<  /*write this - this is the reduced Virial component of pressure*/;
-            cout << " Mu*_xs: " << setw(10) << left << fixed << setprecision(5) << /*write this - this is reduced excess chemical potential*/; 
-            cout << " Cv*/N_xs:  " << setw(15) << left << fixed << setprecision(5) << /*write this - this is reduced excess heat capacity per atom*/);
+            cout << " P*:     " << setw(10) << left << fixed << setprecision(5) << pressure/epsilon*pow(sigma,3.0);
+            cout << " P*cold: " << setw(10) << left << fixed << setprecision(5) <<  (stensor.x + stensor.y + stensor.z) / (3.0 * boxdim.x * boxdim.y * boxdim.z)/epsilon*pow(sigma,3.0);
+            cout << " Mu*_xs: " << setw(10) << left << fixed << setprecision(5) << -temp/epsilon * log(widom_avg / widom_trials); 
+            cout << " Cv*/N_xs:  " << setw(15) << left << fixed << setprecision(5) << Cv/natoms/epsilon;
             cout << " E(kJ/mol): " << setw(10) << left << fixed << setprecision(3) << energy * 0.008314; // KJ/mol per K 
             cout << " P(bar):    " << setw(10) << left << fixed << setprecision(3) << pressure * 0.008314 * 10.0e30 * 1000/(6.02*10.0e23)*1.0e-5; // KJ/mol/A^3 to bar
             cout << endl;
@@ -514,14 +514,14 @@ int main(int argc, char* argv[])
     
     stat_avgE    /= float(nrunningav_moves);
     stat_avgEsq  /= float(nrunningav_moves);
-    Cv            =  /*write this, based on average energies - this should only be the dE/dT portion*/
+    Cv            = (stat_avgEsq - pow(stat_avgE, 2)) / (pow(temp, 2));
     stat_avgE    *= 1.0/natoms/epsilon;
 
     cout << "# Computed average properties: " << endl;
     cout << " # E*/N:  "      << setw(10) << left << fixed << setprecision(5) << stat_avgE << endl;
     cout << " # P*:     "     << setw(10) << left << fixed << setprecision(5) << stat_avgP / float(nrunningav_moves) << endl;
-    cout << " # Cv*/N_xs:   " << setw(15) << left << fixed << setprecision(5) << /*write this - this is reduced excess heat capacity per atom based on average energies*/ << endl;
-    cout << " # Mu_xs:  "     << setw(10) << left << fixed << setprecision(5) << /*write this - this is reduced excess chemical potential*/ << endl;       
+    cout << " # Cv*/N_xs:   " << setw(15) << left << fixed << setprecision(5) << Cv/natoms/epsilon << endl;
+    cout << " # Mu_xs:  "     << setw(10) << left << fixed << setprecision(5) << -temp/epsilon * log(widom_avg / widom_trials) << endl;       
     
 }
 
