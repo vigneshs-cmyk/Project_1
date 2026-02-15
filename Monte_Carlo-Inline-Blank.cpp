@@ -417,9 +417,11 @@ int main(int argc, char* argv[])
             xyz    widom_position;
         
             // 5.a Generate another position for a new ghost atom
-        
-            /*write this*/
-        
+
+            widom_position.x = mtrand() * boxdim.x;
+            widom_position.y = mtrand() * boxdim.y;
+            widom_position.z = mtrand() * boxdim.z;
+
 
             // 5.b Calculate change in system energy due to insertion of new ghost atom 
         
@@ -427,7 +429,7 @@ int main(int argc, char* argv[])
         
             // 5.c Update the Widom factor
         
-            widom_factor = /*write this*/
+            widom_factor = exp(-ewidom / temp);
             widom_avg   += widom_factor;
             widom_trials++;
         }
