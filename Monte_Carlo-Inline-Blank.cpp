@@ -484,7 +484,7 @@ int main(int argc, char* argv[])
             double avgE   = stat_avgE /float(nrunningav_moves);
             double avgEsq = stat_avgEsq / float(nrunningav_moves);
             
-            Cv =/*write this - this should only be the dE/dT portion*/;
+            Cv =(avgEsq - pow(avgE,2)) / (pow(temp,2));
         }
  
         
