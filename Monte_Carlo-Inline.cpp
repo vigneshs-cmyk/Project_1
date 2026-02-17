@@ -44,20 +44,32 @@ double get_dist(const xyz & a1, const xyz & a2, const xyz & boxdim, xyz & rij_ve
     rij_vec.z = a2.z - a1.z;
 
     // Apply minimum image convention
-    rij_vec.x = nearbyint((rij_vec.x/boxdim.x)*boxdim.x);
-    rij_vec.y = nearbyint((rij_vec.y/boxdim.y)*boxdim.y);
-    rij_vec.z = nearbyint((rij_vec.z/boxdim.z)*boxdim.z);
+    rij_vec.x -= boxdim.x * nearbyint(rij_vec.x / boxdim.x);
+    rij_vec.y -= boxdim.y * nearbyint(rij_vec.y / boxdim.y);
+    rij_vec.z -= boxdim.z * nearbyint(rij_vec.z / boxdim.z);
 
     double dist = sqrt(pow(rij_vec.x,2) + pow(rij_vec.y,2) + pow(rij_vec.z,2));
     
     return dist;
 }
-
 double update_max_displacement(double fraction_accepted, double boxdim, double max_displacement)
 {
-    /* Write code to update the maximum displacement based on current acceptance crtieria. 
-    The function should return the the new maximum displacement.
-    */
+    double target_acceptance = 0.5;  // Target 50%
+    double percent_change = 0.05;     // 10% change per update
+
+    if (fraction_accepted > target_acceptance + 0.02) {
+        // Acceptance too high, increase step size by 10%
+        max_displacement *= (1.0 + percent_change);
+    } else if (fraction_accepted < target_acceptance - 0.02) {
+        // Acceptance too low, decrease step size by 10%
+        max_displacement *= (1.0 - percent_change);
+    }
+    // Clamp to reasonable bounds
+    double max_allowed = 0.5 * boxdim;
+    if (max_displacement > max_allowed) max_displacement = max_allowed;
+    if (max_displacement < 1e-6) max_displacement = 1e-6;
+
+    return max_displacement;
 }
 
 void write_frame(ofstream & trajstream, vector<xyz> & coords, string atmtyp, xyz & boxdim, int mcstep)
@@ -432,6 +444,14 @@ int main(int argc, char* argv[])
             widom_factor = exp(-ewidom / temp);
             widom_avg   += widom_factor;
             widom_trials++;
+
+            // Debugging prints
+            //cout << "Ewidom:" << ewidom << endl;
+            //cout << "Widom factor:" << widom_factor << endl;
+            //cout << "Widom avg:" << widom_avg << endl;
+            //cout << "Widom trials:" << widom_trials << endl;
+
+            //
         }
         else
         {
@@ -499,10 +519,10 @@ int main(int argc, char* argv[])
             cout << " fAcc:  " << setw(10) << left << fixed << setprecision(3) << fraction_accepted;
             cout << " Maxd:  " << setw(10) << left << fixed << setprecision(5) << max_displacement;
             cout << " E*/N:  " << setw(10) << left << fixed << setprecision(5) << energy/natoms/epsilon;
-            cout << " P*:     " << setw(10) << left << fixed << setprecision(5) << pressure/epsilon*pow(sigma,3.0);
+            cout << " P*:     " << setw(10) << left << fixed << setprecision(5) << (pressure/epsilon)*pow(sigma,3.0);
             cout << " P*cold: " << setw(10) << left << fixed << setprecision(5) <<  (stensor.x + stensor.y + stensor.z) / (3.0 * boxdim.x * boxdim.y * boxdim.z)/epsilon*pow(sigma,3.0);
-            cout << " Mu*_xs: " << setw(10) << left << fixed << setprecision(5) << -temp/epsilon * log(widom_avg / widom_trials); 
-            cout << " Cv*/N_xs:  " << setw(15) << left << fixed << setprecision(5) << Cv/natoms/epsilon;
+            cout << " Mu*_xs: " << setw(10) << left << fixed << setprecision(5) << -(temp/epsilon) * log(widom_avg / widom_trials); 
+            cout << " Cv*/N_xs:  " << setw(15) << left << fixed << setprecision(5) << Cv/natoms;
             cout << " E(kJ/mol): " << setw(10) << left << fixed << setprecision(3) << energy * 0.008314; // KJ/mol per K 
             cout << " P(bar):    " << setw(10) << left << fixed << setprecision(3) << pressure * 0.008314 * 10.0e30 * 1000/(6.02*10.0e23)*1.0e-5; // KJ/mol/A^3 to bar
             cout << endl;
@@ -521,7 +541,7 @@ int main(int argc, char* argv[])
     cout << " # E*/N:  "      << setw(10) << left << fixed << setprecision(5) << stat_avgE << endl;
     cout << " # P*:     "     << setw(10) << left << fixed << setprecision(5) << stat_avgP / float(nrunningav_moves) << endl;
     cout << " # Cv*/N_xs:   " << setw(15) << left << fixed << setprecision(5) << Cv/natoms/epsilon << endl;
-    cout << " # Mu_xs:  "     << setw(10) << left << fixed << setprecision(5) << -temp/epsilon * log(widom_avg / widom_trials) << endl;       
+    cout << " # Mu_xs:  "     << setw(10) << left << fixed << setprecision(5) << -(temp/epsilon) * log(widom_avg / widom_trials) << endl;       
     
 }
 
