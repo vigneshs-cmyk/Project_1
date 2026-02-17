@@ -522,7 +522,7 @@ int main(int argc, char* argv[])
             cout << " P*:     " << setw(10) << left << fixed << setprecision(5) << (pressure/epsilon)*pow(sigma,3.0);
             cout << " P*cold: " << setw(10) << left << fixed << setprecision(5) <<  (stensor.x + stensor.y + stensor.z) / (3.0 * boxdim.x * boxdim.y * boxdim.z)/epsilon*pow(sigma,3.0);
             cout << " Mu*_xs: " << setw(10) << left << fixed << setprecision(5) << -(temp/epsilon) * log(widom_avg / widom_trials); 
-            cout << " Cv*/N_xs:  " << setw(15) << left << fixed << setprecision(5) << Cv/natoms;
+            cout << " Cv*/N_xs:  " << setw(15) << left << fixed << setprecision(5) << Cv/natoms/epsilon;
             cout << " E(kJ/mol): " << setw(10) << left << fixed << setprecision(3) << energy * 0.008314; // KJ/mol per K 
             cout << " P(bar):    " << setw(10) << left << fixed << setprecision(3) << pressure * 0.008314 * 10.0e30 * 1000/(6.02*10.0e23)*1.0e-5; // KJ/mol/A^3 to bar
             cout << endl;
