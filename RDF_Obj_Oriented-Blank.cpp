@@ -197,15 +197,16 @@ bool configuration::read_frame()
 double configuration::get_dist(int i, int j)
 {
     // Compute and return the minimum image convention distance between a pair of particles i and j
-    double dx = coords[i].x - coords[j].x;
-    double dy = coords[i].y - coords[j].y;
-    double dz = coords[i].z - coords[j].z;
+    double dx = coords[j].x - coords[i].x;
+    double dy = coords[j].y - coords[i].y;
+    double dz = coords[j].z - coords[i].z;
 
     dx -= boxdims.x * round(dx / boxdims.x);
     dy -= boxdims.y * round(dy / boxdims.y);
     dz -= boxdims.z * round(dz / boxdims.z);
 
-    return sqrt(dx*dx + dy*dy + dz*dz);
+    d = sqrt(dx*dx + dy*dy + dz*dz);
+    return d;
 }
 
 int get_rdf_bin(int nbins, double binw, double dist)
@@ -237,7 +238,7 @@ int main(int argc, char* argv[])
     
         if (nframes == 1) // Then set up RDF
         {
-            nbins = /* complete this */; // Set the number of bins based on the system box length and the requested bin width. 
+            nbins = static_cast<int>(0.5 * fmin(fmin(frame.boxdims.x, frame.boxdims.y), frame.boxdims.z) / binw); // Set the number of bins based on the system box length and the requested bin width. 
             num_int.resize(nbins,0);
             
             cout << "Setting nbins, binw to: " << nbins << " " << binw << endl; 
