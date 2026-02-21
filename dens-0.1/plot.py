@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ---- set your file path here ----
-dens = 0.3
+dens = 0.9
 runs = range(1, 5)
 
 plt.rcParams.update({
