@@ -212,6 +212,14 @@ double configuration::get_dist(int i, int j)
 int get_rdf_bin(int nbins, double binw, double dist)
 {
     // Determine the shell bin index the current distance falls in. 
+    int bin = static_cast<int>(floor(dist / binw));
+
+    if (bin < 0)
+        bin = 0;
+    else if (bin >= nbins)
+        bin = nbins - 1;
+
+    return bin;
 }
 
 int main(int argc, char* argv[])
